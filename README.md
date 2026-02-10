@@ -2,7 +2,7 @@
 
 Sistema web modular para centralizar procesos académicos universitarios con capacidades de Inteligencia Artificial.
 
-## 🚀 Características
+##  Características
 
 - **Núcleo**: Autenticación JWT, gestión de usuarios y roles, auditoría
 - **Planeación de Materias**: Catálogo, historial, simulación, recomendaciones con IA
@@ -11,7 +11,7 @@ Sistema web modular para centralizar procesos académicos universitarios con cap
 - **Prácticas Profesionales**: Flujo completo de gestión empresa-alumno
 - **Reservas de Recursos**: Calendario, validación de conflictos, notificaciones
 
-## 🛠️ Stack Tecnológico
+##  Stack Tecnológico
 
 | Componente | Tecnología |
 |------------|------------|
@@ -22,15 +22,15 @@ Sistema web modular para centralizar procesos académicos universitarios con cap
 | ML | scikit-learn + sentence-transformers |
 | Contenedores | Docker + docker-compose |
 
-## 📋 Requisitos
+##  Requisitos
 
 - Docker y Docker Compose
 - Node.js 20+ (para desarrollo frontend)
 - Python 3.11+ (para desarrollo backend)
 
-## 🏃 Inicio Rápido
+##  Inicio Rápido
 
-### Con Docker (recomendado)
+### Con Docker (recomendado - cpu)
 
 ```bash
 # Clonar repositorio
@@ -89,7 +89,7 @@ cp .env.example .env
 npm run dev
 ```
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 Project_W/
@@ -114,7 +114,7 @@ Project_W/
 └── docker-compose.yml
 ```
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Backend
@@ -126,10 +126,6 @@ cd frontend
 npm test
 ```
 
-## 📝 Licencia
+##  Equipo
 
-MIT
-
-## 👥 Equipo
-
-SIGAIA Team
+AXLAAF, Team#3
