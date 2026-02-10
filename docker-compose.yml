@@ -1,0 +1,108 @@
+services:
+  # PostgreSQL with pgvector extension
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: sigaia-db
+    environment:
+      POSTGRES_USER: sigaia
+      POSTGRES_PASSWORD: sigaia_password
+      POSTGRES_DB: sigaia_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sigaia -d sigaia_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: sigaia-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: sigaia-backend
+    user: "${UID:-1000}:${GID:-1000}"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://sigaia:sigaia_password@db:5432/sigaia_db
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=development
+      - DEBUG=true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_storage:/app/storage
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend development server
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sigaia-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+    command: npm run dev -- --host
+
+  # MinIO for S3-compatible storage (optional)
+  minio:
+    image: minio/minio:latest
+    container_name: sigaia-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    profiles:
+      - storage
+
+  # MailHog for email testing (development only)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: sigaia-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    profiles:
+      - email
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_storage:
+  minio_data:
